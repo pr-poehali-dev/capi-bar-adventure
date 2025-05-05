@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Ghost, Sparkles, Trophy } from "lucide-react";
+import { Ghost, Sparkles, Trophy, Egg } from "lucide-react";
 
 const Index = () => {
   const [taskInput, setTaskInput] = useState("");
   const [tasks, setTasks] = useState<Array<{id: number, text: string, assignedTo: string | null, completed: boolean}>>([]);
-  const [inventory, setInventory] = useState<Array<{id: number, name: string, foundBy: string, isLegendary?: boolean, image?: string}>>([]);
+  const [inventory, setInventory] = useState<Array<{id: number, name: string, foundBy: string, isLegendary?: boolean, image?: string, description?: string, isPashalka?: boolean}>>([]);
   
   const capybaras = [
     {
@@ -39,6 +39,22 @@ const Index = () => {
   
   const addTask = () => {
     if (taskInput.trim() !== "") {
+      // Проверяем, не является ли задание пасхалкой
+      const isPashalkaTask = taskInput.toLowerCase().includes("найдите пасхалку");
+      
+      // Если это пасхалка, сразу добавляем секретный предмет
+      if (isPashalkaTask) {
+        setInventory([...inventory, {
+          id: Date.now(),
+          name: "Птица пасхалочек",
+          foundBy: "Система",
+          isPashalka: true,
+          isLegendary: true,
+          image: "https://cdn.poehali.dev/files/52ad634b-9a46-45d6-8cc5-cce6f6038a4c.jpeg",
+          description: "АОАОАО ПАСХАЛКО ПАСХАЛКО ПАСХАЛОЧКА!!!"
+        }]);
+      }
+      
       setTasks([...tasks, {
         id: Date.now(),
         text: taskInput, 
@@ -241,17 +257,21 @@ const Index = () => {
                     {inventory.map(item => (
                       <li 
                         key={item.id} 
-                        className={`p-3 ${item.isLegendary ? 'bg-amber-100 border-amber-400' : 'bg-[#f0e9d9] border-[#d5b89a]'} rounded-lg border ${item.isLegendary ? 'animate-pulse' : ''}`}
+                        className={`p-3 ${item.isPashalka ? 'bg-purple-100 border-purple-400' : item.isLegendary ? 'bg-amber-100 border-amber-400' : 'bg-[#f0e9d9] border-[#d5b89a]'} rounded-lg border ${item.isLegendary || item.isPashalka ? 'animate-pulse' : ''}`}
                       >
                         <div className="flex justify-between items-center">
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className={`font-medium ${item.isLegendary ? 'text-amber-700' : ''}`}>
+                              <span className={`font-medium ${item.isPashalka ? 'text-purple-700' : item.isLegendary ? 'text-amber-700' : ''}`}>
                                 {item.name}
                               </span>
-                              {item.isLegendary && <Trophy className="h-4 w-4 text-amber-500" />}
+                              {item.isLegendary && !item.isPashalka && <Trophy className="h-4 w-4 text-amber-500" />}
+                              {item.isPashalka && <Egg className="h-4 w-4 text-purple-500" />}
                             </div>
                             <p className="text-sm text-[#8c684a]">Нашла: {item.foundBy}</p>
+                            {item.description && (
+                              <p className="text-xs italic mt-1 text-purple-500 font-bold">{item.description}</p>
+                            )}
                           </div>
                           {item.image && (
                             <div className="h-16 w-16">
